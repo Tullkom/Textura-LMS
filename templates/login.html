@@ -1,24 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="col-md-2 mx-auto text-center text-center">
 <h1>Авторизация</h1>
+<div class="mt-5">
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
-    <p>
+    <div>
         {{ form.username.label }}<br>
         {{ form.username(class="form-control") }}<br>
         {% for error in form.username.errors %}
-            <div class="error">{{ error }}</div>
+            <div class="text-danger">{{ error }}</div>
         {% endfor %}
-    </p>
-    <p>
+    </div>
+    <div>
         {{ form.password.label }}<br>
         {{ form.password(class="form-control", type="password") }}<br>
         {% for error in form.password.errors %}
-            <div class="error">{{ error }}</div>
+            <div class="text-danger">{{ error }}</div>
         {% endfor %}
-    </p>
+    </div>
+    {% if error == 'invalid_user'  %}
+        <div class="text-danger mb-3">Неверное имя пользователя или пароль</div>
+    {% endif  %}
     <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
     <p>{{ form.submit(class="btn btn-primary") }}</p>
 </form>
+</div>
+</div>
 {% endblock %}
