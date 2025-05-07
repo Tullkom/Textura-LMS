@@ -1,8 +1,9 @@
 from flask import Flask, render_template, redirect, url_for, flash
-
-import forms
+from forms import LoginForm, RegistrationForm
 from data import db_session
 from data.users import User
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -10,7 +11,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 def main():
     db_session.global_init("db/users.db")
-    db_session.create_session()
+    session = db_session.create_session()
 
     app.run()
 
@@ -21,7 +22,7 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = forms.LoginForm()
+    form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.username == form.username.data).first()
@@ -36,7 +37,7 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    form = forms.RegistrationForm()
+    form = RegistrationForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.username == form.username.data).first():
