@@ -27,6 +27,11 @@
             <div class="error">{{ error }}</div>
         {% endfor %}
     </p>
+    {% if error == 'existing_user'  %}
+        <div class="text-danger mb-3">Имя пользователя занято</div>
+    {% elif error == 'diff_pass'  %}
+        <div class="text-danger mb-3">Пароли не совпадают</div>
+    {% endif  %}
     <p>{{ form.submit(class="btn btn-primary") }}</p>
 </form>
 </div>

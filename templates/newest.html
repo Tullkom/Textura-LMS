@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex mb-4 justify-content-center">
+    НОВИНКИ
+</div>
+{% for item in books%}
+<div class="col-md6 border rounded">
+    <h2>{{item.title}}</h2>
+    <div>
+        {{item.path}}
+    </div>
+    <div>
+        Автор - {{item.user.username}}, Дата написания - {{item.created_date}}
+    </div>
+</div>
+{% endfor %}
+<div class="md-5 container">
+  <div class="row row-cols-6">
+    <div class="col">Column</div>
+    <div class="col">Column</div>
+    <div class="col">Column</div>
+    <div class="col">Column</div>
+    <div class="col">Column</div>
+    <div class="col">Column</div>
+  </div>
+</div>
+{% endblock %}
