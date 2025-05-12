@@ -1,20 +1,21 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from forms import LoginForm, RegistrationForm, BookForm
 from data import db_session
 from data.users import User
 from data.books import Book
+import os
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['UPLOAD_FOLDER'] = 'uploads'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 def main():
     db_session.global_init("db/users.db")
-    session = db_session.create_session()
     app.run()
 
 
@@ -42,7 +43,7 @@ def register():
         db_sess.add(new_user)
         db_sess.commit()
         flash('Вы успешно зарегистрировались!', 'success')
-        return redirect(url_for('login'))
+        return redirect('/')
     return render_template('register.html', form=form, title='Регистрация')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -76,7 +77,10 @@ def popular():
 @app.route('/newest', methods=['GET', 'POST'])
 def newest():
     db_sess = db_session.create_session()
-    books = db_sess.query(Book).filter(Book.is_private != True).order_by(Book.id)[::-1]
+    if current_user.is_authenticated:
+        books = db_sess.query(Book).order_by(Book.id)[::-1]
+    else:
+        books = db_sess.query(Book).filter(Book.is_private == False).order_by(Book.id)[::-1]
     return render_template('newest.html', books=books)
 
 @app.route('/faq', methods=['GET', 'POST'])
@@ -97,14 +101,21 @@ def account():
 def add_book():
     form = BookForm()
     if form.validate_on_submit():
+        uploaded_file = form.file.data
+        filename = current_user.username + '_' + form.title.data + '.txt'
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        uploaded_file.save(file_path)
+
         db_sess = db_session.create_session()
         book = Book()
         book.title = form.title.data
-        book.path = form.content.data
+        book.about = form.content.data
         book.is_private = form.is_private.data
+        book.path = '/uploads/' + current_user.username + '_' + book.title + '.txt'
         current_user.books.append(book)
         db_sess.merge(current_user)
         db_sess.commit()
+
         return redirect('/')
     return render_template('add_book.html', title='Добавление книги',
                            form=form)

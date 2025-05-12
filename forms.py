@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms import TextAreaField
+from wtforms import TextAreaField, FileField
 from wtforms.validators import DataRequired, EqualTo
 
 
@@ -21,6 +21,7 @@ class RegistrationForm(FlaskForm):
 
 class BookForm(FlaskForm):
     title = StringField('Название книги', validators=[DataRequired()])
-    content = TextAreaField("Текст произведения")
+    content = TextAreaField("О книге")
     is_private = BooleanField("Недоступно гостям")
-    submit = SubmitField('Применить')
+    file = FileField("Текст книги в формате .txt")
+    submit = SubmitField('Выложить')
