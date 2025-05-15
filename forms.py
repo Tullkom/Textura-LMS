@@ -24,4 +24,5 @@ class BookForm(FlaskForm):
     content = TextAreaField("О книге")
     is_private = BooleanField("Недоступно гостям")
     file = FileField("Текст книги в формате .txt")
+    file = FileField("Обложка книги в формате .jpg")
     submit = SubmitField('Выложить')

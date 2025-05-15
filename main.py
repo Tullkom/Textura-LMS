@@ -1,6 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from forms import LoginForm, RegistrationForm, BookForm
+from sqlalchemy import and_
 from data import db_session
 from data.users import User
 from data.books import Book
@@ -27,7 +28,7 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return render_template('main.html')
+    return render_template('main.html', title='Текстура')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -72,7 +73,7 @@ def success():
 
 @app.route('/popular', methods=['GET', 'POST'])
 def popular():
-    return render_template('popular.html')
+    return render_template('popular.html', title='Популярное')
 
 @app.route('/newest', methods=['GET', 'POST'])
 def newest():
@@ -81,22 +82,22 @@ def newest():
         books = db_sess.query(Book).order_by(Book.id)[::-1]
     else:
         books = db_sess.query(Book).filter(Book.is_private == False).order_by(Book.id)[::-1]
-    return render_template('newest.html', books=books)
+    return render_template('newest.html', books=books, title='Новинки')
 
 @app.route('/faq', methods=['GET', 'POST'])
 def faq():
-    return render_template('faq.html')
+    return render_template('faq.html', title='FAQ')
 
 @app.route('/about', methods=['GET', 'POST'])
 def about():
-    return render_template('about.html')
+    return render_template('about.html', title='О нас')
 
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    return render_template('account.html')
+    return render_template('account.html', title=current_user.username)
 
-@app.route('/book',  methods=['GET', 'POST'])
+@app.route('/add_book',  methods=['GET', 'POST'])
 @login_required
 def add_book():
     form = BookForm()
@@ -111,7 +112,7 @@ def add_book():
         book.title = form.title.data
         book.about = form.content.data
         book.is_private = form.is_private.data
-        book.path = '/uploads/' + current_user.username + '_' + book.title + '.txt'
+        book.path = '/uploads/' + current_user.username + '_' + book.title.replace(' ', '_') + '.txt'
         current_user.books.append(book)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -120,6 +121,14 @@ def add_book():
     return render_template('add_book.html', title='Добавление книги',
                            form=form)
 
+@app.route('/book/<string:author>/<string:book_name>',  methods=['GET', 'POST'])
+def get_book(author, book_name):
+    book_name = book_name.replace('_', ' ')
+    db_sess = db_session.create_session()
+    uid = db_sess.query(User).filter(User.username == author).first().id
+    book = db_sess.query(Book).filter(and_(Book.user_id == uid, Book.title == book_name)).first()
+    return render_template('book.html', title=book.title + ' - ' + book.user.username,
+                           book_name=book.title, author=author, about=book.about)
 
 if __name__ == '__main__':
     main()

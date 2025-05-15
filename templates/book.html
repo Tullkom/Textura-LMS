@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex mb-4 justify-content-center">
+    <h1>Просмотр произведения</h1>
+</div>
+<div class="d-flex book_obj">
+    <div class="d-flex flex-column border bd-highlight mb-3">
+      <div class="p-2 bd-highlight"><h2>{{ book_name }}</h2></div>
+      <div class="p-2 bd-highlight"><h2>Автор - {{ author }}</h2></div>
+    </div>
+  <div class="flex-grow-1 ms-3">
+    {{ about  }}
+  </div>
+</div>
+{% endblock %}

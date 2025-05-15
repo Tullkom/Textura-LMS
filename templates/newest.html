@@ -2,11 +2,11 @@
 
 {% block content %}
 <div class="d-flex mb-4 justify-content-center">
-    НОВИНКИ
+    <h1>НОВИНКИ</h1>
 </div>
 {% for item in books%}
 <div class="book_obj border px-1 py-1">
-    <a><h2>{{item.title}}</h2></a>
+    <a href="book/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}"><h2>{{item.title}}</h2></a>
     <div class="text-break">
         {{item.about}}
     </div>
