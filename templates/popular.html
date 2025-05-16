@@ -4,8 +4,18 @@
 <div class="d-flex mb-4 justify-content-center">
     <h1>ПОПУЛЯРНО</h1>
 </div>
-<div class="d-flex mx-5 justify-content-center">
-ОЧЕНЬ ПОПУЛЯРНО
-НЕВЕРОЯТНО ПОПУЛЯРНО
+{% for item in books%}
+<div class="book_obj border px-3 py-3 my-3">
+    <a href="{{ url_for('book_page', author=item.user.username, book_name=item.title.replace(' ', '_')) }}"><h2>{{item.title}}</h2></a>
+    <div class="text-break">
+        {{item.about}}
+    </div>
+    <div>
+        Автор - <a href="{{ url_for('account', author=item.user.username) }}">{{item.user.username}}</a>, Дата написания - {{item.created_date}}
+    </div>
+    <div>
+        Просмотры: {{ item.views }}
+    </div>
 </div>
+{% endfor %}
 {% endblock %}

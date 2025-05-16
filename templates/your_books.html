@@ -19,6 +19,9 @@
     <div class="mb-3">
         Дата написания - {{item.created_date}}
     </div>
+    <div>
+        Просмотры: {{ item.views }}
+    </div>
     <form action="/delete/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}" method="post"
     onsubmit="return confirm('Точно удалить?');">
             {{ form.submit(type="submit", class="btn btn-outline-danger") }}

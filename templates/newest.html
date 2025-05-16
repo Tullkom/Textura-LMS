@@ -13,6 +13,9 @@
     <div>
         Автор - <a href="{{ url_for('account', author=item.user.username) }}">{{item.user.username}}</a>, Дата написания - {{item.created_date}}
     </div>
+    <div>
+        Просмотры: {{ item.views }}
+    </div>
 </div>
 {% endfor %}
 {% endblock %}

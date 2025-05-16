@@ -7,7 +7,6 @@ from sqlalchemy import and_
 from data import db_session
 from data.users import User
 from data.books import Book
-from json import loads
 import os
 
 
@@ -80,7 +79,12 @@ def success():
 
 @app.route('/popular', methods=['GET', 'POST'])
 def popular():
-    return render_template('popular.html', title='Популярное')
+    db_sess = db_session.create_session()
+    if current_user.is_authenticated:
+        books = db_sess.query(Book).order_by(Book.views)[::-1]
+    else:
+        books = db_sess.query(Book).filter(Book.is_private == False).order_by(Book.views)[::-1]
+    return render_template('popular.html', books=books, title='Популярное')
 
 @app.route('/newest', methods=['GET', 'POST'])
 def newest():
