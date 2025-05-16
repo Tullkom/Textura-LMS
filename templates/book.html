@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
 <div class="d-flex mb-4 justify-content-center">
     <h1>Просмотр произведения</h1>
@@ -11,9 +10,11 @@
     <div class="d-flex flex-column border bd-highlight p-3 me-3">
       <div class="p-2 bd-highlight"><h2>{{ book_name }}</h2></div>
       <div class="p-2 bd-highlight"><h2>Автор - {{ author }}</h2></div>
+      {% if current_user.is_authenticated %}
+      <div class="p-2 bd-highlight"><h3>Просмотров: {{ views }}</h3></div>
+      {% endif %}
     </div>
     </td>
-
     <td height="100%" class="border">
     <div class="text-break flex-grow-1 p-3">
         О книге: {{ about }}
