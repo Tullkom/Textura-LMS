@@ -7,6 +7,7 @@ from sqlalchemy import and_
 from data import db_session
 from data.users import User
 from data.books import Book
+from json import loads
 import os
 
 
@@ -20,6 +21,10 @@ login_manager.init_app(app)
 def main():
     db_session.global_init("db/users.db")
     app.run()
+
+
+def has_viewed(book, user):
+    return user and any(v.id == user.id for v in book.viewers)
 
 
 @login_manager.user_loader
@@ -154,8 +159,19 @@ def book_page(author, book_name):
     db_sess = db_session.create_session()
     uid = db_sess.query(User).filter(User.username == author).first().id
     book = db_sess.query(Book).filter(and_(Book.user_id == uid, Book.title == book_name)).first()
-    return render_template('book.html', title=book.title + ' - ' + book.user.username,
-                           book_name=book.title, author=author, about=book.about)
+
+    if current_user.is_authenticated and not has_viewed(book, current_user):
+        book.views += 1
+        viewer = db_sess.query(User).get(current_user.id)
+        book.viewers.append(viewer)
+        db_sess.commit()
+
+    return render_template('book.html',
+                           title=book.title + ' - ' + book.user.username,
+                           book_name=book.title,
+                           author=author,
+                           about=book.about,
+                           views=book.views)
 
 @app.route('/download/<string:author>/<string:book_name>',  methods=['GET', 'POST'])
 def download(author, book_name):
