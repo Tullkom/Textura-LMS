@@ -5,8 +5,8 @@
     <h1>НОВИНКИ</h1>
 </div>
 {% for item in books%}
-<div class="book_obj border px-1 py-1">
-    <a href="book/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}"><h2>{{item.title}}</h2></a>
+<div class="book_obj border px-3 py-3 my-3">
+    <a href="book_page/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}"><h2>{{item.title}}</h2></a>
     <div class="text-break">
         {{item.about}}
     </div>
@@ -15,14 +15,4 @@
     </div>
 </div>
 {% endfor %}
-<!--<div class="md-5 container">-->
-<!--  <div class="row row-cols-6">-->
-<!--    <div class="col">Column</div>-->
-<!--    <div class="col">Column</div>-->
-<!--    <div class="col">Column</div>-->
-<!--    <div class="col">Column</div>-->
-<!--    <div class="col">Column</div>-->
-<!--    <div class="col">Column</div>-->
-<!--  </div>-->
-<!--</div>-->
 {% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center">
+      <div class="p-2 bd-highlight"><h1>{{ book_name }}</h1></div>
+      <div class="p-2 bd-highlight"><h1>Автор - {{ author }}</h1></div>
+</div>
+{% if current_user.is_authenticated %}
+<div class="p-2 text-center bd-highlight"><h3>Страница {{ page }}</h3></div>
+<div class="d-flex justify-content-between book_obj">
+  {% if page > 1 %}
+    <div class="p-2 bd-highlight">
+      <a href="/read/{{ author }}/{{ book_name.replace(' ', '_') }}/{{ page - 1 }}">
+      <button type="button" class="btn btn-outline-dark me-2"><</button>
+      </a>
+    </div>
+  {% else %}
+    <div class="p-2 bd-highlight">
+      <a href="/book_page/{{ author }}/{{ book_name.replace(' ', '_') }}">
+      <button type="button" class="btn btn-outline-dark me-2">Оглавление</button>
+      </a>
+    </div>
+  {% endif %}
+  {% if page < last_page %}
+    <div class="p-2 bd-highlight">
+      <a href="/read/{{ author }}/{{ book_name.replace(' ', '_') }}/{{ page + 1 }}">
+      <button type="button" class="btn btn-outline-dark me-2">></button>
+      </a>
+    </div>
+  {% else %}
+    <div class="p-2 bd-highlight">
+      <a href="/book_page/{{ author }}/{{ book_name.replace(' ', '_') }}">
+      <button type="button" class="btn btn-outline-dark me-2">Оглавление</button>
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endif %}
+<div class="border p-3 text-break book_obj">{{ content }}</div>
+{% endblock %}

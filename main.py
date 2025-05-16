@@ -1,10 +1,12 @@
-from flask import Flask, render_template, redirect, url_for, flash, send_from_directory
+from flask import Flask, render_template, redirect, url_for, flash
+from flask import send_file
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from forms import LoginForm, RegistrationForm, BookForm
 from sqlalchemy import and_
 from data import db_session
 from data.users import User
 from data.books import Book
+from json import loads
 import os
 
 
@@ -121,14 +123,37 @@ def add_book():
     return render_template('add_book.html', title='Добавление книги',
                            form=form)
 
-@app.route('/book/<string:author>/<string:book_name>',  methods=['GET', 'POST'])
-def get_book(author, book_name):
+@app.route('/book_page/<string:author>/<string:book_name>',  methods=['GET', 'POST'])
+def book_page(author, book_name):
     book_name = book_name.replace('_', ' ')
     db_sess = db_session.create_session()
     uid = db_sess.query(User).filter(User.username == author).first().id
     book = db_sess.query(Book).filter(and_(Book.user_id == uid, Book.title == book_name)).first()
     return render_template('book.html', title=book.title + ' - ' + book.user.username,
                            book_name=book.title, author=author, about=book.about)
+
+@app.route('/download/<string:author>/<string:book_name>',  methods=['GET', 'POST'])
+def download(author, book_name):
+    path = os.path.join(app.config['UPLOAD_FOLDER'], author + '_' + book_name + '.txt')
+    return send_file(path, as_attachment=True)
+
+@app.route('/read/<string:author>/<string:book_name>/<int:page>',  methods=['GET', 'POST'])
+def read(author, book_name, page):
+    book_title = book_name.replace('_', ' ')
+    path = os.path.join(app.config['UPLOAD_FOLDER'], author + '_' + book_name + '.txt')
+    f = open(path, mode='r', encoding='utf8')
+    content = f.read()
+    last_page = len(content)//2000 + 1
+    content = content[2000 * (page - 1): 2000 * page] + ' -->'
+    f.close()
+    return render_template('read.html', title=book_title + ' - ' + author,
+                           book_name=book_title, author=author, page=page,
+                           content=content, last_page=last_page)
+
+@app.route('/down')
+def download_file():
+    path = 'file.txt'
+    return send_file(path, as_attachment=True)
 
 if __name__ == '__main__':
     main()
