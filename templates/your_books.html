@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex mb-4 justify-content-center">
+    <h1>ВАШИ КНИГИ</h1>
+</div>
+<a class="book_obj" href="{{ url_for('add_book') }}"><button type="button" class="btn btn-outline-dark me-2">Добавить книгу</button></a>
+{% for item in books %}
+<div class="book_obj border px-3 py-3 my-3">
+    <div class="d-flex justify-content-between">
+    <div><a href="book_page/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}"><h2>{{item.title}}</h2></a></div>
+        <a href="/edit_book/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}">
+            <button type="button" class="btn btn-outline-warning me-2">Изменить</button>
+        </a>
+    </div>
+    <div class="text-break">
+        {{item.about}}
+    </div>
+    <div class="mb-3">
+        Дата написания - {{item.created_date}}
+    </div>
+    <form action="/delete/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}" method="post"
+    onsubmit="return confirm('Точно удалить?');">
+            {{ form.submit(type="submit", class="btn btn-outline-danger") }}
+    </form>
+</div>
+{% endfor %}
+{% endblock %}

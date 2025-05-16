@@ -1,12 +1,12 @@
 from flask import Flask, render_template, redirect, url_for, flash
 from flask import send_file
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from forms import LoginForm, RegistrationForm, BookForm
+from forms import LoginForm, RegistrationForm, AddBookForm
+from forms import DeleteBookForm, EditBookForm
 from sqlalchemy import and_
 from data import db_session
 from data.users import User
 from data.books import Book
-from json import loads
 import os
 
 
@@ -94,18 +94,24 @@ def faq():
 def about():
     return render_template('about.html', title='О нас')
 
-@app.route('/account', methods=['GET', 'POST'])
-@login_required
-def account():
-    return render_template('account.html', title=current_user.username)
+@app.route('/account/<string:author>', methods=['GET', 'POST'])
+def account(author):
+    db_sess = db_session.create_session()
+    uid = db_sess.query(User).filter(User.username == author).first().id
+    if uid == current_user.id:
+        return render_template('account.html', title=current_user.username)
+    user = db_sess.query(User).filter(User.username == author).first()
+    books = db_sess.query(Book).filter(Book.user_id == user.id).order_by(Book.id)[::-1]
+    return render_template('author.html', title=author, author=author, books=books)
+
 
 @app.route('/add_book',  methods=['GET', 'POST'])
 @login_required
 def add_book():
-    form = BookForm()
+    form = AddBookForm()
     if form.validate_on_submit():
         uploaded_file = form.file.data
-        filename = current_user.username + '_' + form.title.data + '.txt'
+        filename = current_user.username + '_' + form.title.data.replace(' ', '_') + '.txt'
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         uploaded_file.save(file_path)
 
@@ -122,6 +128,25 @@ def add_book():
         return redirect('/')
     return render_template('add_book.html', title='Добавление книги',
                            form=form)
+
+@app.route('/edit_book/<string:author>/<string:book_name>',  methods=['GET', 'POST'])
+@login_required
+def edit_book(author, book_name):
+    form = EditBookForm()
+    book_title = book_name.replace('_', ' ')
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.username == author).first()
+    if user.id != current_user.id:
+        if user.account_type != 'admin':
+            return render_template('main.html', title='Текстура')
+    if form.validate_on_submit():
+        book = db_sess.query(Book).filter(and_(Book.user_id == user.id, Book.title == book_name)).first()
+        book.about = form.content.data
+        book.is_private = form.is_private.data
+        db_sess.commit()
+        return your_books()
+    return render_template('edit_book.html', title='Добавление книги',
+                           book_title=book_title, form=form)
 
 @app.route('/book_page/<string:author>/<string:book_name>',  methods=['GET', 'POST'])
 def book_page(author, book_name):
@@ -144,16 +169,39 @@ def read(author, book_name, page):
     f = open(path, mode='r', encoding='utf8')
     content = f.read()
     last_page = len(content)//2000 + 1
-    content = content[2000 * (page - 1): 2000 * page] + ' -->'
+    content = content[2000 * (page - 1): 2000 * page]
+    if page != last_page:
+        content += ' -->'
     f.close()
     return render_template('read.html', title=book_title + ' - ' + author,
                            book_name=book_title, author=author, page=page,
                            content=content, last_page=last_page)
 
-@app.route('/down')
-def download_file():
-    path = 'file.txt'
-    return send_file(path, as_attachment=True)
+@app.route('/your_books', methods=['GET', 'POST'])
+@login_required
+def your_books():
+    db_sess = db_session.create_session()
+    books = db_sess.query(Book).filter(Book.user_id == current_user.id).order_by(Book.id)[::-1]
+    form = DeleteBookForm()
+    return render_template('your_books.html', books=books, title='Ваши книги', form=form)
+
+@app.route('/delete/<string:author>/<string:book_name>', methods=['GET', 'POST'])
+@login_required
+def delete(author, book_name):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.username == author).first()
+    if user.id != current_user.id:
+        if current_user.account_type != 'admin':
+            return render_template('main.html', title='Текстура')
+    print('дел')
+    book_title = book_name.replace('_', ' ')
+    uid = db_sess.query(User).filter(User.username == author).first().id
+    book = db_sess.query(Book).filter(and_(Book.user_id == uid, Book.title == book_title)).first()
+    db_sess.delete(book)
+    db_sess.commit()
+    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], author + '_' + book_name + '.txt'))
+    return your_books()
+
 
 if __name__ == '__main__':
     main()

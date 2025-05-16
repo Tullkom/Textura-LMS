@@ -6,12 +6,12 @@
 </div>
 {% for item in books%}
 <div class="book_obj border px-3 py-3 my-3">
-    <a href="book_page/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}"><h2>{{item.title}}</h2></a>
+    <a href="{{ url_for('book_page', author=item.user.username, book_name=item.title.replace(' ', '_')) }}"><h2>{{item.title}}</h2></a>
     <div class="text-break">
         {{item.about}}
     </div>
     <div>
-        Автор - {{item.user.username}}, Дата написания - {{item.created_date}}
+        Автор - <a href="{{ url_for('account', author=item.user.username) }}">{{item.user.username}}</a>, Дата написания - {{item.created_date}}
     </div>
 </div>
 {% endfor %}

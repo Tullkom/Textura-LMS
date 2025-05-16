@@ -19,10 +19,17 @@ class RegistrationForm(FlaskForm):
     )
     submit = SubmitField('Зарегистрироваться')
 
-class BookForm(FlaskForm):
+class AddBookForm(FlaskForm):
     title = StringField('Название книги', validators=[DataRequired()])
     content = TextAreaField("О книге")
     is_private = BooleanField("Недоступно гостям")
-    file = FileField("Текст книги в формате .txt")
-    file = FileField("Обложка книги в формате .jpg")
+    file = FileField("Текст книги в формате .txt", validators=[DataRequired()])
     submit = SubmitField('Выложить')
+
+class EditBookForm(FlaskForm):
+    content = TextAreaField("О книге")
+    is_private = BooleanField("Недоступно гостям")
+    submit = SubmitField('Применить')
+
+class DeleteBookForm(FlaskForm):
+    submit = SubmitField('Удалить')
