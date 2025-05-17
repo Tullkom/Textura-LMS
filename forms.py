@@ -33,3 +33,7 @@ class EditBookForm(FlaskForm):
 
 class DeleteBookForm(FlaskForm):
     submit = SubmitField('Удалить')
+
+class SearchForm(FlaskForm):
+    query = StringField('Название книги', validators=[DataRequired()])
+    submit = SubmitField('Поиск')

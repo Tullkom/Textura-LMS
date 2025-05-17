@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, url_for, flash
-from flask import send_file
+from flask import send_file, request
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from forms import LoginForm, RegistrationForm, AddBookForm
-from forms import DeleteBookForm, EditBookForm
+from forms import DeleteBookForm, EditBookForm, SearchForm
 from sqlalchemy import and_
 from data import db_session
 from data.users import User
@@ -34,7 +34,8 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return render_template('main.html', title='Текстура')
+    form = SearchForm()
+    return render_template('main.html', title='Текстура', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -94,6 +95,19 @@ def newest():
     else:
         books = db_sess.query(Book).filter(Book.is_private == False).order_by(Book.id)[::-1]
     return render_template('newest.html', books=books, title='Новинки')
+
+@app.route('/find/', methods=['GET', 'POST'])
+def find():
+    book_name = request.form['query']
+    book_title = book_name.replace('_', ' ')
+    db_sess = db_session.create_session()
+    book_title = book_name.replace('_', ' ')
+    if current_user.is_authenticated:
+        books = db_sess.query(Book).filter(Book.title.ilike(f'%{book_title}%')).order_by(Book.id)[::-1]
+    else:
+        books = db_sess.query(Book).filter(and_(Book.title.ilike(f'%{book_title}%'),
+                                                Book.is_private == False)).order_by(Book.id)[::-1]
+    return render_template('find.html', books=books, title='Новинки')
 
 @app.route('/faq', methods=['GET', 'POST'])
 def faq():
