@@ -32,7 +32,7 @@ class Book(SqlAlchemyBase):
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relationship('User')
     categories = orm.relationship("Category",
-                                  secondary="association",
+                                  secondary='association',
                                   backref="books")
     views = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     viewers = orm.relationship("User",

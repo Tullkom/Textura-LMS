@@ -26,7 +26,17 @@
     <p>
         {{ form.file.label }}
         {{ form.file(class="form-control") }}<br>
-        {% for error in form.content.errors %}
+        {% for error in form.file.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.categories.label }}<br>
+        Доступные категории: ужасы, детектив, комедия, драма, триллер, роман, эссе, поэзия, sci-fi, фэнтези<br>
+        {{ form.categories(class="form-control") }}<br>
+        {% for error in form.categories.errors %}
             <p content="alert alert-danger" role="alert">
                 {{ error }}
             </p>

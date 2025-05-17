@@ -1,12 +1,15 @@
 from flask import Flask, render_template, redirect, url_for, flash
 from flask import send_file, request
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from unicodedata import category
+
 from forms import LoginForm, RegistrationForm, AddBookForm
 from forms import DeleteBookForm, EditBookForm, SearchForm
 from sqlalchemy import and_
 from data import db_session
 from data.users import User
 from data.books import Book
+from data.category import Category
 import os
 
 
@@ -76,7 +79,7 @@ def logout():
 
 @app.route('/success', methods=['GET', 'POST'])
 def success():
-    return render_template('success.html')
+    return render_template('success.html', title='Успех!')
 
 @app.route('/popular', methods=['GET', 'POST'])
 def popular():
@@ -107,7 +110,7 @@ def find():
     else:
         books = db_sess.query(Book).filter(and_(Book.title.ilike(f'%{book_title}%'),
                                                 Book.is_private == False)).order_by(Book.id)[::-1]
-    return render_template('find.html', books=books, title='Новинки')
+    return render_template('find.html', books=books, title='Поиск ' + book_title)
 
 @app.route('/faq', methods=['GET', 'POST'])
 def faq():
@@ -144,8 +147,17 @@ def add_book():
         book.about = form.content.data
         book.is_private = form.is_private.data
         book.path = '/uploads/' + current_user.username + '_' + book.title.replace(' ', '_') + '.txt'
+        for object in db_sess:
+            print('obj', object) # Я не знаю каким магическим образом это работает,
+            # но оно подгружает объекты без ошибки
+        if form.categories.data.split(';'):
+            for i in form.categories.data.split(';'):
+                book_cat = db_sess.query(Category).filter(Category.name == i.lower()).first()
+                if book_cat:
+                    db_sess.add(current_user)
+                    book.categories.append(book_cat)
+        db_sess.add(current_user)
         current_user.books.append(book)
-        db_sess.merge(current_user)
         db_sess.commit()
 
         return redirect('/')
@@ -177,6 +189,7 @@ def book_page(author, book_name):
     db_sess = db_session.create_session()
     uid = db_sess.query(User).filter(User.username == author).first().id
     book = db_sess.query(Book).filter(and_(Book.user_id == uid, Book.title == book_name)).first()
+    categories = ', '.join([i.name for i in book.categories])
 
     if current_user.is_authenticated and not has_viewed(book, current_user):
         book.views += 1
@@ -188,6 +201,7 @@ def book_page(author, book_name):
                            title=book.title + ' - ' + book.user.username,
                            book_name=book.title,
                            author=author,
+                           categories=categories,
                            about=book.about,
                            views=book.views)
 
@@ -227,7 +241,6 @@ def delete(author, book_name):
     if user.id != current_user.id:
         if current_user.account_type != 'admin':
             return render_template('main.html', title='Текстура')
-    print('дел')
     book_title = book_name.replace('_', ' ')
     uid = db_sess.query(User).filter(User.username == author).first().id
     book = db_sess.query(Book).filter(and_(Book.user_id == uid, Book.title == book_title)).first()

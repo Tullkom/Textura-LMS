@@ -8,18 +8,24 @@
 {% for item in books %}
 <div class="book_obj border px-3 py-3 my-3">
     <div class="d-flex justify-content-between">
-    <div><a href="book_page/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}"><h2>{{item.title}}</h2></a></div>
-        <a href="/edit_book/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}">
+    <div><a href="{{ url_for('book_page', author=item.user.username, book_name=item.title.replace(' ', '_')) }}"><h2>{{item.title}}</h2></a></div>
+        <a href="{{ url_for('edit_book', author=item.user.username, book_name=item.title.replace(' ', '_')) }}">
             <button type="button" class="btn btn-outline-warning me-2">Изменить</button>
         </a>
     </div>
     <div class="text-break">
+        Категории:
+        {%for i in item.categories%}
+        {{i.name}}
+        {%endfor%}
+    </div>
+    <div class="text-break">
         {{item.about}}
     </div>
-    <div class="mb-3">
+    <div>
         Дата написания - {{item.created_date}}
     </div>
-    <div>
+    <div class="mb-3">
         Просмотры: {{ item.views }}
     </div>
     <form action="/delete/{{ item.user.username }}/{{ item.title.replace(' ', '_') }}" method="post"
