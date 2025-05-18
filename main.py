@@ -1,8 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, flash
 from flask import send_file, request
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from unicodedata import category
-
 from forms import LoginForm, RegistrationForm, AddBookForm
 from forms import DeleteBookForm, EditBookForm, SearchForm
 from sqlalchemy import and_
@@ -102,7 +100,6 @@ def newest():
 @app.route('/find/', methods=['GET', 'POST'])
 def find():
     book_name = request.form['query']
-    book_title = book_name.replace('_', ' ')
     db_sess = db_session.create_session()
     book_title = book_name.replace('_', ' ')
     if current_user.is_authenticated:
@@ -124,7 +121,7 @@ def about():
 def account(author):
     db_sess = db_session.create_session()
     uid = db_sess.query(User).filter(User.username == author).first().id
-    if uid == current_user.id:
+    if current_user.is_authenticated and uid == current_user.id:
         return render_template('account.html', title=current_user.username)
     user = db_sess.query(User).filter(User.username == author).first()
     books = db_sess.query(Book).filter(Book.user_id == user.id).order_by(Book.id)[::-1]
@@ -147,9 +144,6 @@ def add_book():
         book.about = form.content.data
         book.is_private = form.is_private.data
         book.path = '/uploads/' + current_user.username + '_' + book.title.replace(' ', '_') + '.txt'
-        for object in db_sess:
-            print('obj', object) # Я не знаю каким магическим образом это работает,
-            # но оно подгружает объекты без ошибки
         if form.categories.data.split(';'):
             for i in form.categories.data.split(';'):
                 book_cat = db_sess.query(Category).filter(Category.name == i.lower()).first()
