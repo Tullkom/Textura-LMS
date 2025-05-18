@@ -17,3 +17,7 @@ body {
 .footer {
 	flex: 0 0 auto;
 }
+.book_obj{
+    margin-right: 24rem;
+    margin-left: 24rem;
+}

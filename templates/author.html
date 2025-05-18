@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="book_obj border px-5 py-5">
+    <div class="mb-4 ">
+        <h1>ПОЛЬЗОВАТЕЛЬ</h1>
+    </div>
+    <div class="mb-4">
+        <h2>
+            Имя пользователя: {{ author }}
+        </h2>
+        <h2>
+            Книги пользователя:
+        </h2>
+    </div>
+</div>
+{% for item in books%}
+<div class="book_obj border px-3 py-3 my-3">
+    <a href="{{ url_for('book_page', author=item.user.username, book_name=item.title.replace(' ', '_')) }}"><h2>{{item.title}}</h2></a>
+    <div class="text-break">
+        {{item.about}}
+    </div>
+    <div>
+        Автор - {{item.user.username}}, Дата написания - {{item.created_date}}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

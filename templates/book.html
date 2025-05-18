@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex mb-4 justify-content-center">
+    <h1>ПРОСМОТР ПРОИЗВЕДЕНИЯ</h1>
+</div>
+<div class="book_obj mb-3">
+    <table>
+    <tr>
+    <td width="360px" class="align-top">
+    <div class="d-flex flex-column border bd-highlight p-3 me-3">
+      <div class="p-2 text-break bd-highlight"><h2>{{ book_name }}</h2></div>
+      <div class="p-2 text-break bd-highlight"><h2>Автор - <a href="{{ url_for('account', author=author) }}">{{ author }}</a></h2></div>
+      <div class="p-2 bd-highlight"><h3>Просмотров: {{ views }}</h3></div>
+    </div>
+    </td>
+
+    <td height="100%" class="border">
+    <div class="text-break flex-grow-1 p-3">
+        О книге: {{ about }}
+    </div>
+    </td>
+    </tr>
+    </table>
+</div>
+<div class="text-break border book_obj my-3 p-3">
+    Категории: {{ categories }}
+</div>
+<div class="d-flex flex-row-reverse bd-highlight book_obj">
+  <a href="{{ url_for('read', author=author, book_name=book_name.replace(' ', '_'), page=1) }}">
+      <button type="button" class="btn btn-outline-dark me-2">Прочитать отрывок</button>
+  </a>
+  <a href="{{ url_for('download', author=author, book_name=book_name.replace(' ', '_')) }}">
+      <button type="button" class="btn btn-outline-dark me-2">Скачать книгу</button>
+  </a>
+</div>
+{% endblock %}

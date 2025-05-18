@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="book_obj border px-5 py-5">
+    <div class="mb-4 ">
+        <h1>ПОЛЬЗОВАТЕЛЬ</h1>
+    </div>
+    <div class="mb-4">
+    Имя пользователя: {{ current_user.username }}
+    </div>
+    <a href="{{ url_for('your_books') }}"><button type="button" class="btn btn-outline-dark me-2">Ваши книги</button></a>
+</div>
+{% endblock %}
